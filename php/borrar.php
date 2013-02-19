@@ -20,20 +20,12 @@ function fatal_error ( $sErrorMessage = '' )
 		die( $sErrorMessage );
 	}    
 
-$ID = $_POST['id_clinica'];
+$ID = $_POST['id_doctor'];
 
-$sQuery = "DELETE FROM clinicas WHERE id_clinica =".$ID;
+$sQuery = "DELETE FROM doctores WHERE id_doctor =".$ID;
 $rResult = mysql_query( $sQuery, $gaSql['link'] ) or fatal_error( 'MySQL Error: ' . mysql_errno() );
 
-
-
-
-echo $ID;
-
-
-
-
-
+echo json_encode("ok");
 
 
 

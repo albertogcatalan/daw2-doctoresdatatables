@@ -154,7 +154,9 @@
                 },
                 success: function(data) {
                     
+                    $('#borrarModal').modal('hide');
                     oTable.fnDraw();
+                   
                     
                 }
                        
@@ -182,7 +184,7 @@
                         
                     },
                     success: function(data) {
-                       
+                    	$('#actualizarModal').modal('hide');
                         oTable.fnDraw();
                         
                     }
@@ -198,7 +200,7 @@
                         
                     },
                     success: function(data) {
-                        
+                        $('#actualizarModal').modal('hide');
                         oTable.fnDraw();
                        
                     }

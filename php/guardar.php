@@ -1,33 +1,52 @@
 <?php
 
+/* Database connection information */
 require_once("mysql.php");
 
-$aColumns = array( $_POST['id_clinica'], $_POST['nombre'], $_POST['numclinica'], $_POST['razonsocial'], $_POST['cif'],  $_POST['localidad'], $_POST['provincia'], $_POST['direccion'], $_POST['cp'],  $_POST['id_tarifa']);
+/*
+ * Local functions
+ */
 
-if ( ! $gaSql['link'] = mysql_pconnect( $gaSql['server'], $gaSql['user'], $gaSql['password']  ) )
-	{
-		fatal_error( 'Could not open connection to server' );
-	}
-
-if ( ! mysql_select_db( $gaSql['db'], $gaSql['link'] ) )
-{
-        fatal_error( 'Could not select database ' );
+function fatal_error($sErrorMessage = '') {
+    header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error');
+    die($sErrorMessage);
 }
-	
+
+/*
+ * MySQL connection
+ */
+if (!$gaSql['link'] = mysql_pconnect($gaSql['server'], $gaSql['user'], $gaSql['password'])) {
+    fatal_error('Could not open connection to server');
+}
+
+if (!mysql_select_db($gaSql['db'], $gaSql['link'])) {
+    fatal_error('Could not select database ');
+}
+
 mysql_query('SET names utf8');
-        
-function fatal_error ( $sErrorMessage = '' )
-	{
-		header( $_SERVER['SERVER_PROTOCOL'] .' 500 Internal Server Error' );
-		die( $sErrorMessage );
-	}     
 
 
-$sQuery = "UPDATE clinicas SET nombre = '".$aColumns[1]."', numclinica = '".$aColumns[2]."', razonsocial = '".$aColumns[3]."', cif = '".$aColumns[4]."', localidad = '".$aColumns[5]."', provincia = '".$aColumns[6]."', direccion = '".$aColumns[7]."', cp = '".$aColumns[8]."', id_tarifa = ".$aColumns[9]." WHERE id_clinica = ".$aColumns[0];
-//echo $sQuery;
+$id_doctor = $_POST["id_doctor"];
+$nombre = $_POST["nombre"];
+$numcolegiado = $_POST["numcolegiado"];
+$id_clinicas = $_POST["id_clinicas"];
 
-$rResult = mysql_query( $sQuery, $gaSql['link'] ) or fatal_error( 'MySQL Error: ' . mysql_errno() );
+/*
+ * SQL queries
+ * Get data to display
+ */
 
-echo $aColumns[0];
-        
+
+$sQuery = "update doctores set nombre = '".$nombre."', numcolegiado = ".$numcolegiado." where id_doctor = ".$id_doctor."";
+$rResult = mysql_query($sQuery, $gaSql['link']) or fatal_error('MySQL Error: ' . mysql_errno());
+
+	
+	for($i=0; $i < count($id_clinicas); $i++){
+	    $sQuery2 = 'insert into clinica_doctor (id_doctor, id_clinica, numdoctor) values (' .$id . ',' .$id_clinicas[$i] . ',' .$numdoctor .')';
+	    $rResult2 = mysql_query($sQuery2, $gaSql['link']) or fatal_error('MySQL Error: ' . mysql_errno());
+    }
+
+
+echo json_encode("ok");
+
 ?>
