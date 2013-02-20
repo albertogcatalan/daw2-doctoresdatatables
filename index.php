@@ -10,19 +10,22 @@
     <!-- Le styles -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="js/jquery.validate.js"></script>
+    <script type="text/javascript" src="js/additional-methods.js"></script>
+    <script type="text/javascript" src="js/messages_es.js"></script>
     <style type="text/css">
       body {
-        padding-top: 60px;
+        padding-top: 40px;
         padding-bottom: 40px;
       }
     </style>
-    <link rel="stylesheet" type="text/css" href="css/DT_bootstrap.css"/>
     <link rel="stylesheet" type="text/css" href="css/jquery.gritter.css"/>
+    <link rel="stylesheet" type="text/css" href="css/DT_bootstrap.css"/>
+    
     
     <script type="text/javascript" src="js/bootstrap.min.js"></script> 
-  
     <script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
-    <script type="text/javascript" src="js/jquery.gritter.min.js"></script>
+    <script type="text/javascript" src="js/jquery.gritter.js"></script>
     <script type="text/javascript" src="js/DT_bootstrap.js"></script>
     
      
@@ -44,8 +47,7 @@
                     "aoColumns": [
                         { "mData": "doctor",
                             "mRender": function ( data, type, full ) {
-
-                               return '<a data-toggle="modal" class="insertarbtn" data-target="#actualizarModal" href="#?id_doctor=' + full.id_doctor + '">'+data+'</a>';
+                               return '<a data-toggle="modal" class="editarbtn" data-target="#actualizarModal" href="#?id_doctor=' + full.id_doctor + '">'+data+'</a>';
                                
                             }
                         },
@@ -118,7 +120,23 @@
 	                }
 	    });
             
-            
+        $("#form").validate({
+            rules : {
+                    nombre : {
+                            required : true,
+                            lettersonly : true
+                    },
+                    numcolegiado : {
+                            digits: true
+                    },
+                    id_clinicas : {
+                            required : true
+
+                    }
+                    
+                }
+        });
+        
         $("#mitabla").on('click',".editarbtn", function (e) {
             e.preventDefault();
             var nRow = $(this).parents('tr')[0];	
@@ -137,6 +155,16 @@
             var aData = oTable.fnGetData(nRow);
             $("#id_doctorB").val(aData.id_doctor);
         });
+        
+        $("#actualizarModal").on('click',"#accionGuardarReset", function (e) {    
+            e.preventDefault();
+            $("#form")[0].reset();
+        });
+        
+        $("#actualizarModal").on('click',".close", function (e) {    
+            e.preventDefault();
+            $("#form")[0].reset();
+        });
           
         
         $("#borrarModal").on('click',"#accionBorrar", function (e) {    
@@ -150,11 +178,25 @@
                 async: false,
                 data: {id_doctor: id_doctor },
                 error: function(xhr, status, error) {
-                    
+                    $('#borrarModal').modal('hide');
+                    $.gritter.add({
+                                    title: 'Notificación',
+                                    text: 'Error: <b>'+error+'</b></br>Estado: <b>'+status+'</b></br>Codigo: <b>'+xhr+'</b>',
+                                    image: 'images/error.png',
+                                    sticky: false,
+                                    time: '3000'
+                            });
                 },
                 success: function(data) {
-                    
                     $('#borrarModal').modal('hide');
+                    $.gritter.add({
+                                    title: 'Notificación',
+                                    text: 'El registro ha sido borrado correctamente',
+                                    image: 'images/ok.png',
+                                    sticky: false,
+                                    time: '3000'
+                         });
+                    
                     oTable.fnDraw();
                    
                     
@@ -173,41 +215,77 @@
             var numcolegiado = $("#numcolegiado").val();
             var id_clinicas = $("#id_clinicas").val();
             
-            if (id_doctor == ""){
-                $.ajax({
-                    type: 'POST',
-                    dataType: 'json',
-                    url: "php/insertar.php",
-                    async: false,
-                    data: { nombre: nombre, numcolegiado: numcolegiado, id_clinicas:id_clinicas},
-                    error: function(xhr, status, error) {
-                        
-                    },
-                    success: function(data) {
-                    	$('#actualizarModal').modal('hide');
-                        oTable.fnDraw();
-                        
-                    }
-                });
-            } else {
-                $.ajax({
-                    type: 'POST',
-                    dataType: 'json',
-                    url: "php/guardar.php",
-                    async: false,
-                    data: { id_doctor: id_doctor, nombre: nombre, numcolegiado: numcolegiado, id_clinicas: id_clinicas},
-                    error: function(xhr, status, error) {
-                        
-                    },
-                    success: function(data) {
-                        $('#actualizarModal').modal('hide');
-                        oTable.fnDraw();
-                       
-                    }
-                });
+            
                 
-            }
-            return false;
+                if (id_doctor == ""){
+                    $.ajax({
+                        type: 'POST',
+                        dataType: 'json',
+                        url: "php/insertar.php",
+                        async: false,
+                        data: { nombre: nombre, numcolegiado: numcolegiado, id_clinicas:id_clinicas},
+                        error: function(xhr, status, error) {
+                            $('#actualizarModal').modal('hide');
+                            $.gritter.add({
+                                        title: 'Notificación',
+                                        text: 'Error: <b>'+error+'</b></br>Estado: <b>'+status+'</b></br>Codigo: <b>'+xhr+'</b>',
+                                        image: 'images/error.png',
+                                        sticky: false,
+                                        time: '3000'
+                                });
+                             $("#form")[0].reset();
+                        },
+                        success: function(data) {
+                            $('#actualizarModal').modal('hide');
+                            $.gritter.add({
+                                        title: 'Notificación',
+                                        text: 'El registro ha sido creado correctamente',
+                                        image: 'images/ok.png',
+                                        sticky: false,
+                                        time: '3000'
+                            });
+                            $("#form")[0].reset();
+                            oTable.fnDraw();
+
+                        }
+                    });
+                } else {
+                    $.ajax({
+                        type: 'POST',
+                        dataType: 'json',
+                        url: "php/guardar.php",
+                        async: false,
+                        data: { id_doctor: id_doctor, nombre: nombre, numcolegiado: numcolegiado, id_clinicas: id_clinicas},
+                        error: function(xhr, status, error) {
+                            $('#actualizarModal').modal('hide');
+                            $.gritter.add({
+                                        title: 'Notificación',
+                                        text: 'Error: <b>'+error+'</b></br>Estado: <b>'+status+'</b></br>Codigo: <b>'+xhr+'</b>',
+                                        image: 'images/error.png',
+                                        sticky: false,
+                                        time: '3000'
+                                });
+                             $("#form")[0].reset();
+                        },
+                        success: function(data) {
+                            $('#actualizarModal').modal('hide');
+                            $.gritter.add({
+                                        title: 'Notificación',
+                                        text: 'El registro ha sido actualizado correctamente',
+                                        image: 'images/ok.png',
+                                        sticky: false,
+                                        time: '3000'
+                            });
+                            oTable.fnDraw();
+                            $("#form")[0].reset();
+
+                        }
+                    });
+
+                }
+                return false;
+            
+           
                    
         });
     });
@@ -216,28 +294,7 @@
 </head>
 <body>
 
-    <div class="navbar navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container">
-          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </a>
-          <a class="brand" href="#">GestiónClínica</a>
-          <div class="nav-collapse collapse">
-            <ul class="nav">
-              <li class="active"><a href="#">Inicio</a></li>
-             
-            
-
-             
-            </ul>
-            
-          </div><!--/.nav-collapse -->
-        </div>
-      </div>
-    </div>
+    
 
     <div class="container">
 
@@ -262,7 +319,7 @@
         </tbody>
     </table>
 
-    <div id="actualizarModal" class="modal hide fade">
+    <div id="actualizarModal" class="modal hide ">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal">×</button>
             <h3 id="myModalLabel">Datos de Doctor</h3>
@@ -275,14 +332,14 @@
 			        <div class="control-group">
 			        	<label for="nombre" class="control-label required">Nombre:</label>
 			        	<div class="controls">
-				        	<input type="text" name="nombre" id="nombre" value="" class="required" maxlength="100">
+				        	<input type="text" name="nombre" id="nombre" value="" class="required" maxlength="50">
 				        </div>
 				    </div>
 			        
 			        <div class="control-group">
 			        	<label for="numcolegiado" class="control-label optional">Nº de Colegiado:</label>
 			        	<div class="controls">
-				        	<input type="text" name="numcolegiado" id="numcolegiado" value="" maxlength="50">
+				        	<input type="text" name="numcolegiado" id="numcolegiado" value="" maxlength="10">
 				        </div>
 				    </div>
 			        
@@ -298,7 +355,7 @@
 			</form>       
         </div>
         <div class="modal-footer">
-            <button class="btn" data-dismiss="modal">Cancelar</button>
+            <button class="btn" data-dismiss="modal" id="accionGuardarReset">Cancelar</button>
             <button id="accionGuardar" class="btn btn-primary">Guardar</button>
         </div>
     </div>
@@ -313,7 +370,7 @@
             <p>¿Seguro que quieres borrar el registro?</p>
         </div>
         <div class="modal-footer">
-            <button class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</button>
+            <button class="btn" data-dismiss="modal">Cancelar</button>
             <button id="accionBorrar" class="btn btn-primary">Borrar</button>
         </div>
     </div>

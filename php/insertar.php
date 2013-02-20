@@ -40,12 +40,15 @@ $resultado = mysql_fetch_assoc($rResult);
 $id = $resultado['id_doctor'];
 $id += 1;
 
+if ($numcolegiado == ""){
+    $sQuery = 'insert into doctores (id_doctor,nombre) values (' .$id . ', "'.$nombre . '")';    
+} else {
+    $sQuery = 'insert into doctores (id_doctor,nombre, numcolegiado) values (' .$id . ', "'.$nombre . '",' .$numcolegiado .' )';
+}
 
-$sQuery = 'insert into doctores (id_doctor,nombre, numcolegiado) values (' .$id . ', "'.$nombre . '",' .$numcolegiado .' )';
 $rResult = mysql_query($sQuery, $gaSql['link']) or fatal_error('MySQL Error: ' . mysql_errno());
 
 $numdoctor = $id+1;
-
 	
 for($i=0; $i < count($id_clinicas); $i++){
     $sQuery2 = 'insert into clinica_doctor (id_doctor, id_clinica, numdoctor) values (' .$id . ',' .$id_clinicas[$i] . ',' .$numdoctor .')';
