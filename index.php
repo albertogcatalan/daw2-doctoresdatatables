@@ -18,6 +18,9 @@
         padding-top: 40px;
         padding-bottom: 40px;
       }
+      .error {
+          color: #c43c35;
+      }
     </style>
     <link rel="stylesheet" type="text/css" href="css/jquery.gritter.css"/>
     <link rel="stylesheet" type="text/css" href="css/DT_bootstrap.css"/>
@@ -135,10 +138,12 @@
                     }
                     
                 }
+            
         });
         
         $("#mitabla").on('click',".editarbtn", function (e) {
             e.preventDefault();
+            
             var nRow = $(this).parents('tr')[0];	
             var aData = oTable.fnGetData(nRow);
             $("#id_doctor").val(aData.id_doctor);
@@ -207,15 +212,18 @@
                    
         });
           
+          
         $("#actualizarModal").on('click',"#accionGuardar", function (e) {    
-        	e.preventDefault();
-           
+                e.preventDefault();
+         
             var id_doctor = $("#id_doctor").val();
             var nombre =$("#nombre").val();
             var numcolegiado = $("#numcolegiado").val();
             var id_clinicas = $("#id_clinicas").val();
+
             
-            
+              if ($("#form").validate().form()){
+                  
                 
                 if (id_doctor == ""){
                     $.ajax({
@@ -285,7 +293,7 @@
                 }
                 return false;
             
-           
+              }
                    
         });
     });
@@ -325,7 +333,7 @@
             <h3 id="myModalLabel">Datos de Doctor</h3>
         </div>
         <div class="modal-body">
-            <form id="form" name="form" action="" method="post">
+            <form id="form" name="form" action="" class="miform" method="post">
             	<fieldset id="fieldset-formdoctor" class="form-horizontal">
 
 			        <input type="hidden" name="id_doctor" value="" id="id_doctor">
