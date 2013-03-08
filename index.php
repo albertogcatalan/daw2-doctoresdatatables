@@ -132,7 +132,7 @@
                     numcolegiado : {
                             digits: true
                     },
-                    id_clinicas : {
+                    "id_clinicas[]" : {
                             required : true
 
                     }
